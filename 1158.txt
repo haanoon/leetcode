@@ -1,0 +1,13 @@
+import pandas as pd
+
+def market_analysis(users: pd.DataFrame, orders: pd.DataFrame, items: pd.DataFrame) -> pd.DataFrame:
+    joined = pd.merge(left=users,right=orders,how="left",left_on="user_id",right_on="buyer_id")
+    joined_2019 = joined[(joined['order_date'].notna()) & (joined['order_date'].dt.year==2019)]
+    joined_ = joined_2019.groupby(["user_id","join_date"]).size().reset_index(name="orders_in_2019")
+    joined_ = joined_.rename(columns={'user_id':'buyer_id'})
+    all_users=users[['user_id','join_date']]
+    joine = joined_[["buyer_id","join_date","orders_in_2019"]]
+    last = pd.merge(left=all_users,right=joine,how="left",left_on=["user_id","join_date"],right_on="buyer_id")
+    last = last.rename(columns={"buyer_id":"User_id"})
+    last = last.rename(columns={'user_id':'buyer_id'})
+    return last[["buyer_id","join_date","orders_in_2019"]]
